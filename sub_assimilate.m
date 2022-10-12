@@ -128,18 +128,30 @@ max_offset = obs_intvl * DELTA_T;
 % First observation is just 0 for all state variables
 true_obs(:, 1) = 0; obs(:, 1) = 0; lin_true_obs(:, 1) = 0;
 for t = 2:num_times + 1
+
+   % Use a truncated normal distribution where the bound is obs_intvl * DELTA_T
    % Compute the time offset
    real_offset(t) = randn * time_err_sd;
-
-   % If the offset is more than the available intvl space it is an error
-   % Could change this to bound the errors by bounding the range
-   if(abs(real_offset(t)) > max_offset) 
-      %'Time offset bigger than max_offset'
-      violations = violations + 1;
-      %real_offset(t)
-      real_offset(t) = sign(real_offset(t)) * max_offset / 2;
-      %real_offset(t)
+   while(abs(real_offset(t)) > max_offset)
+      real_offset(t) = randn * time_err_sd
    end
+
+% Just a redundant test to make sure nothing crazy happens here
+if(abs(real_offset(t)) > max_offset) 
+   stop
+end
+
+% FOLLOWING BLOCK WAS USED IN INITIAL NPG SUBMISSION AND IS REPLACED BY TRUNCATED NORMAL
+%   % If the offset is more than the available intvl space it is an error
+%   % Could change this to bound the errors by bounding the range
+%   if(abs(real_offset(t)) > max_offset) 
+%      %'Time offset bigger than max_offset'
+%      violations = violations + 1;
+%      %real_offset(t)
+%      real_offset(t) = sign(real_offset(t)) * max_offset / 2;
+%      %real_offset(t)
+%   end
+% END OF REPLACED BLOCK
 
    % Now compute the truth at this time by linear interpolation in the full resolution truth
    if(real_offset(t) < 0) 

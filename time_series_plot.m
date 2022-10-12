@@ -105,7 +105,12 @@ l_prod(1: NUM_INTERP * 2 * obs_intvl + 1) = -99999;
 all_obs_prior(1:MODEL_SIZE, 1:ens_size) = -99999;
 
 %-----------------------------------------------------------
-
+% Establish colors
+colormap('parula');
+my_map = colormap('parula');
+c1 = my_map(6, :);
+c2 = my_map(29, :);
+c3 = my_map(50, :);
 %-----------------------------------------------------------------------------------------
 
 % Storage that is only changed as part of the truth run generation
@@ -218,9 +223,9 @@ plot(fr_time(1:size(fr_truth, 2)), fr_truth(37, 1:size(fr_truth, 2)), '-*', 'col
 hold on
 
 plot(da_time(1:num_times), truth(37, 1:num_times), 'k*', 'markersize', 14, 'linewidth', 3);
-plot(actual_time(1:num_times), true_obs(37, 1:num_times), 'go', 'markersize', 14, 'linewidth', 3)
-plot(actual_time(1:num_times), lin_true_obs(37, 1:num_times), 'b+', 'markersize', 14, 'linewidth', 3)
-plot(actual_time(1:num_times), obs(37, 1:num_times), 'rx', 'markersize', 14, 'linewidth', 3)
+plot(actual_time(1:num_times), true_obs(37, 1:num_times), 'o', 'color', c1, 'markersize', 14, 'linewidth', 3)
+plot(actual_time(1:num_times), lin_true_obs(37, 1:num_times), '+', 'color', c2, 'markersize', 14, 'linewidth', 3)
+plot(actual_time(1:num_times), obs(37, 1:num_times), 'x', 'color', c3, 'markersize', 14, 'linewidth', 3)
 
 % Make a pretty picture for the paper 
 % Done for obs_intvl 60, time_err_sd 0.2

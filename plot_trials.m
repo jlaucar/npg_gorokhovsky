@@ -9,6 +9,17 @@ lines_per_case = 2*num_trials + 1;
 % THe 12 values are (obs_intvl, time_err_sd, method, trial, infl, loc, prior_rmse, ...
 %   prior_spread, post_rmse, post_spread, offset_rmse, perfect_offset_rmes)
 
+
+% Colors
+% Establish colors for the three cases
+colormap('parula');
+my_map = colormap('parula');
+c1 = my_map(11, :);
+c2 = my_map(29, :);
+c3 = my_map(53, :);
+c4 = [0, 0, 0];
+c5 = my_map(64, :);
+
 % Loop through the 5 different methods
 rmse_line = 0;
 mean_line = 0;
@@ -95,9 +106,11 @@ end   % Of method loop
 
 
 for oi_index = 1:5
+   figure(2)
    oi_vals = [5 10 15 30 60];
    oi = oi_vals(oi_index);
-   figure(oi_index);
+   subplot(3, 2, oi_index);
+   %figure(oi_index);
 
    % Customize the axes
    if(oi_index == 1)
@@ -130,13 +143,13 @@ for oi_index = 1:5
    for method_indx = 1:5
       method_vals = [11 12 13 14 29];
       method = method_vals(method_indx);
-      method_colors = ['g', 'b', 'r', 'k', 'm'];
+      method_colors = [c1; c2; c3; c4; c5];
 
       %--------------- Plot of average of trials -------
       indx = find(rmse_mean(:, 1) == oi & rmse_mean(:, 3) == method);
       y = rmse_mean(indx, :);
       %h = plot(y(:, 2), y(:, 7), '*');
-      %set(h, 'color', method_colors(method_indx));
+      %set(h, 'color', method_colors(method_indx, :));
       %set(h, 'linewidth', 3);
       %hold on
 
@@ -144,7 +157,8 @@ for oi_index = 1:5
       %--------------- Plot of all trials ------------
       
       for trial = 1:num_trials
-         figure(oi_index);
+         figure(2);
+         subplot(3, 2, oi_index);
          indx = find(rmse_data(:, 1) == oi & rmse_data(:, 3) == method & rmse_data(:, 4) == trial);
          x = rmse_data(indx, :);
 
@@ -157,7 +171,7 @@ for oi_index = 1:5
 
          h = semilogx(x_offset, x(:, 7), '*');
          axis(ax);
-         set(h, 'color', method_colors(method_indx));
+         set(h, 'color', method_colors(method_indx, :));
          set(h, 'linewidth', 2);
 
          if(trial == 1) lh(oi_index, method_indx) = h; end
@@ -165,32 +179,44 @@ for oi_index = 1:5
          set(gca, 'XTICK', xt);
          set(gca, 'linewidth', 2);
          set(gca, 'fontsize', 16);
+         set(gca, 'color', [0.8 0.8 0.8]);
+% Allow the different background color to print
+set(gcf,'InvertHardCopy','Off');
+set(gcf, 'color', [1 1 1]);
          ylabel 'RMSE of Ensemble Mean';
          xlabel 'Time Error Standard Deviation';
-         title(['Analysis Period ', num2str(oi * 0.01)]);
+         frame_str = ['A). '; 'B). '; 'C). '; 'D). '; 'E). '];	
+         title([frame_str(oi_index, :), 'Analysis Period ', num2str(oi * 0.01)]);
          hold on
 
          % Can also do separate plots of the errors in the estimate of the time offset
-         figure(5 + oi_index);
-         if(method == 14) 
-            % For the impossible method, plot the impossible rmse of time offset
-            hh = semilogx(x_offset, x(:, 12), '*'); 
-         else
-            hh = semilogx(x_offset, x(:, 11), '*'); 
+         figure(3);
+         if(oi_index == 2 | oi_index == 4)
+            subplot(1, 2, oi_index/2);
+            if(method == 14) 
+               % For the impossible method, plot the impossible rmse of time offset
+               hh = semilogx(x_offset, x(:, 12), '*'); 
+            else
+               hh = semilogx(x_offset, x(:, 11), '*'); 
+            end
+            axis(axt);
+            set(hh, 'color', method_colors(method_indx, :));
+            set(hh, 'linewidth', 2);
+
+            if(trial == 1) lhh(oi_index/2, method_indx) = hh; end
+
+            set(gca, 'XTICK', xt);
+            set(gca, 'linewidth', 2);
+            set(gca, 'fontsize', 16);
+            set(gca, 'color', [0.8 0.8 0.8]);
+% Allow the different background color to print
+set(gcf,'InvertHardCopy','Off');
+set(gcf, 'color', [1 1 1]);
+            xlabel 'Time Error Standard Deviation';
+            ylabel 'Ensemble Mean Time Offset RMSE';
+            title([frame_str(oi_index/2, :), 'Analysis Period ', num2str(oi * 0.01)]);
+            hold on
          end
-         axis(axt);
-         set(hh, 'color', method_colors(method_indx));
-         set(hh, 'linewidth', 2);
-
-         if(trial == 1) lhh(oi_index, method_indx) = hh; end
-
-         set(gca, 'XTICK', xt);
-         set(gca, 'linewidth', 2);
-         set(gca, 'fontsize', 16);
-         xlabel 'Time Error Standard Deviation';
-         ylabel 'Ensemble Mean Time Offset RMSE';
-         title(['Analysis Period ', num2str(oi * 0.01)]);
-         hold on
 
       end
       %--------------- Plot of all trials ------------
@@ -199,29 +225,67 @@ for oi_index = 1:5
    
 end
 
+
 % Slap on some legends; RMSE has 5 methods
-for oi_index = 1:5
+figure(2)
+for oi_index = 2:2
+   subplot(3, 2, oi_index);
    legend(lh(oi_index, :), 'NOCORRECTION', 'LINEAR', 'VARONLY', 'IMPOSSIBLE', 'NONLINEAR', 'location', 'nw');
+   % Slap on some legends; RMSE of time offset has 4 methods
+   %legend(lhh(oi_index, :), 'NOCORRECTION', 'LINEAR', 'VARONLY', 'IMPOSSIBLE', 'NONLINEAR', 'location', 'nw');
+end
+
+figure(3)
+for oi_index = 1:1
+   subplot(1, 2, oi_index);
+   %legend(lh(oi_index, :), 'NOCORRECTION', 'LINEAR', 'VARONLY', 'IMPOSSIBLE', 'NONLINEAR', 'location', 'nw');
    % Slap on some legends; RMSE of time offset has 4 methods
    legend(lhh(oi_index, :), 'NOCORRECTION', 'LINEAR', 'VARONLY', 'IMPOSSIBLE', 'NONLINEAR', 'location', 'nw');
 end
 
 % Fix the 0 label
-for i = 1:10 
-   figure(i)
+for i = 1:5 
+   figure(2)
+   subplot(3, 2, i);
+   xtl = get(gca, 'XTICKLABEL');
+   xtl(1) = {'0.0'};
+   set(gca, 'XTICKLABEL', xtl);
+end
+
+for i = 1:2 
+   figure(3)
+   subplot(1, 2, i);
    xtl = get(gca, 'XTICKLABEL');
    xtl(1) = {'0.0'};
    set(gca, 'XTICKLABEL', xtl);
 end
 
 for i = 1:5
-   figure(i);
+   figure(2);
+   subplot(3, 2, i);
    print(strcat('RMSE_Period_', num2str(obs_intvl_vals(i))), '-dpng');
+end
 
-   figure(i + 5);
+for i = 1:2
+   figure(3);
+   subplot(1, 2, i);
    print(strcat('RMSE_Tau_', num2str(obs_intvl_vals(i))), '-dpng');
 end
 
 
 
+% Put on the caption
+figure(2)
+subplot(3, 2, 6)
+set(gca, 'vis', 'off');
+%text(0, 0.8, 'Figure 2: RMSE of the ensemble mean over 1000 analysis time steps.', 'fontsize', 16);
+%text(0, 0.7, 'Ten experiments were run for each of 5 methods with each method', 'fontsize', 16);
+%text(0, 0.6, 'indicated by a different color. The horizontal axis is logarithmic', 'fontsize', 16);
+%text(0, 0.5, 'except for the 0 value.', 'fontsize', 16);
+
+% Get good size
+figure(2)
+set(gcf, 'position', [3 5 1438 792]);
+figure(3)
+set(gcf, 'position', [70 481 1370 316]);
 

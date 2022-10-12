@@ -8,13 +8,13 @@ DO_VAR_ONLY_CORRECTION = 13;
 DO_IMPOSSIBLE_CORRECTION = 14;
 DO_NONLIN_CORRECTION = 19;
 DO_NORMAL_CORRECTION = 27;
-DO_NONLINEAR_INTERPOLATION_CORRECTION = 29;
+DO_INTERP_CORRECTION = 29;
 
 
 
 
 % Specify a particular algorithm to explore because this controls some parameters
-correction_method = DO_POSSIBLE_CORRECTION;
+correction_method = DO_INTERP_CORRECTION;
 
 % Open a file for this correction method
 fid = fopen(strcat('multi_case_out_', num2str(correction_method)), 'a+');
@@ -57,7 +57,7 @@ for i = 1:size(r, 1)
             num_interp = 1;
             sub_normal_time_err(fid, inflate, half_width, seed, obs_intvl, time_err_sd, ...
                obs_discard_width, num_interp);
-         elseif(correction_method == DO_NONLINEAR_INTERPOLATION_CORRECTION)
+         elseif(correction_method == DO_INTERP_CORRECTION)
             num_interp = 1;
             sub_time_err_sd_interp_assim(fid, inflate, half_width, seed, obs_intvl, time_err_sd, ...
                obs_discard_width, num_interp);
